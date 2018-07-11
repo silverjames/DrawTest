@@ -11,11 +11,13 @@ import UIKit
 @IBDesignable
 class DrawView: UIView {
     
-    var number:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
+    @IBInspectable
+    var number:Int = 3 { didSet {setNeedsLayout(); setNeedsDisplay()}}
     var shape:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
     var shading:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
     var color:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
-//    private var diamond = UIBezierPath() { didSet {setNeedsLayout(); setNeedsDisplay()}}
+
+    //    private var diamond = UIBezierPath() { didSet {setNeedsLayout(); setNeedsDisplay()}}
     
     private func createDiamond(_ rect: CGRect) -> UIBezierPath{
         let diamond:UIBezierPath = UIBezierPath()
@@ -28,14 +30,50 @@ class DrawView: UIView {
         return diamond
     }
     
-    override func draw(_ rect: CGRect) {
+    private func createSquiggle(_ rect: CGRect) -> UIBezierPath{
+        let squiggle:UIBezierPath = UIBezierPath()
+        print ("\(rect)")
         
-//        if let context = UIGraphicsGetCurrentContext(){
-        let dia = createDiamond(rect)
+        squiggle.move(to: getCenter(rect))
+        squiggle.lineJoinStyle = .round
+        squiggle.lineCapStyle = .round
+        squiggle.move(to: rect.origin)
+        squiggle.addQuadCurve(to: CGPoint(x: rect.midX * 0.5, y: rect.maxY * 0.25), controlPoint: CGPoint(x: rect.maxX * 0.4, y: rect.maxY * 0.01))
+        squiggle.addCurve(to: CGPoint(x: rect.midX * 0.5, y: rect.maxY * 0.85), controlPoint1: CGPoint(x: rect.maxX * 0.1, y: rect.maxY * 0.4), controlPoint2: CGPoint(x: rect.maxX * 0.25, y: rect.maxY * 0.5))
+        squiggle.addQuadCurve(to: CGPoint(x: rect.maxX * 0.75, y: rect.maxY * 0.85), controlPoint: CGPoint(x: rect.maxX * 0.6, y: rect.maxY * 0.99))
+        squiggle.addCurve(to: CGPoint(x: rect.maxX * 0.75, y: rect.maxY * 0.25), controlPoint1: CGPoint(x: rect.maxX * 0.9, y: rect.maxY * 0.5), controlPoint2: CGPoint(x: rect.maxX * 0.65, y: rect.maxY * 0.7))
+        return squiggle
+    }
+    
+    private func createCircle(_ rect: CGRect) -> UIBezierPath{
+        print ("rect: \(rect)")
+//        print ("min: \(min(rect.width, rect.height))")
+
+        let circle = UIBezierPath()
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height)/2 * 0.9
+        circle.addArc(withCenter: center, radius: radius, startAngle: 0.0, endAngle: 2*CGFloat.pi, clockwise: false)
+        return circle
+    }
+    
+    private func getDimensionsForCell (_ rect: CGRect) -> (rowCount:Int, columnCount:Int){
+        if rect.height/rect.width > 1.0{
+            return(number, 1)
+        } else {
+        return(1, number)
+        }
+    }
+    
+    override func draw(_ rect: CGRect) {
         UIColor.green.setFill()
         UIColor.blue.setStroke()
-        dia.stroke()
-        dia.fill()
+        let cages = Grid.init(layout:.dimensions(rowCount: getDimensionsForCell(rect).rowCount, columnCount: getDimensionsForCell(rect).columnCount) , frame: rect)
+        for idx in 0..<cages.cellCount{
+            let shape = createCircle(cages[idx]!)
+            shape.stroke()
+            shape.fill()
+        }
+        
     }
 
 }
