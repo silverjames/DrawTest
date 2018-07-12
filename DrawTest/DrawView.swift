@@ -20,12 +20,17 @@ class DrawView: UIView {
     //    private var diamond = UIBezierPath() { didSet {setNeedsLayout(); setNeedsDisplay()}}
     
     private func createDiamond(_ rect: CGRect) -> UIBezierPath{
-        let diamond:UIBezierPath = UIBezierPath()
-        diamond.move(to: getCenter(rect))
-        diamond.move(to: CGPoint(x: rect.midX, y: rect.minY + cardInset(rect)))
-        diamond.addLine(to: CGPoint(x: rect.maxX - cardInset(rect), y:rect.midY))
-        diamond.addLine(to: CGPoint(x: rect.midX, y:rect.maxY - cardInset(rect)))
-        diamond.addLine(to: CGPoint(x: rect.minX + cardInset(rect), y:rect.midY))
+        let diamond = UIBezierPath()
+        let axis = (min(rect.width, rect.height) * 0.9)/2
+        let center = getCenter(rect)
+        let p1 = CGPoint(x: center.x, y: center.y - axis)
+        let p2 = CGPoint(x: center.x + axis, y: center.y)
+        let p3 = CGPoint(x: center.x, y: center.y + axis)
+        let p4 = CGPoint(x: center.x - axis, y: center.y)
+        diamond.move(to: p1)
+        diamond.addLine(to: p2)
+        diamond.addLine(to: p3)
+        diamond.addLine(to: p4)
         diamond.close()
         return diamond
     }
@@ -46,11 +51,8 @@ class DrawView: UIView {
     }
     
     private func createCircle(_ rect: CGRect) -> UIBezierPath{
-        print ("rect: \(rect)")
-//        print ("min: \(min(rect.width, rect.height))")
-
         let circle = UIBezierPath()
-        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let center = getCenter(rect)
         let radius = min(rect.width, rect.height)/2 * 0.9
         circle.addArc(withCenter: center, radius: radius, startAngle: 0.0, endAngle: 2*CGFloat.pi, clockwise: false)
         return circle
@@ -69,7 +71,7 @@ class DrawView: UIView {
         UIColor.blue.setStroke()
         let cages = Grid.init(layout:.dimensions(rowCount: getDimensionsForCell(rect).rowCount, columnCount: getDimensionsForCell(rect).columnCount) , frame: rect)
         for idx in 0..<cages.cellCount{
-            let shape = createCircle(cages[idx]!)
+            let shape = createDiamond(cages[idx]!)
             shape.stroke()
             shape.fill()
         }
@@ -80,18 +82,18 @@ class DrawView: UIView {
 
 extension DrawView{
     private struct SetViewRatios {
-        static let frameInsetRatio: CGFloat = 0.2
+        static let frameInsetRatio: CGFloat = 0.1
         static let maxSymbolsPerCard = 3
     }
     
     private func cardInset (_ rect: CGRect) -> CGFloat{
-        return (rect.maxX + rect.maxY)/2 * SetViewRatios.frameInsetRatio
+        return (rect.width + rect.height)/2 * SetViewRatios.frameInsetRatio
     }
     private func symbolBounds (_ bounds: CGRect) -> CGRect{
         let symbolFrame = bounds.inset(by: UIEdgeInsets.init(top: cardInset(bounds), left: cardInset(bounds), bottom: cardInset(bounds), right: cardInset(bounds)))
         return symbolFrame
     }
     private func getCenter (_ rect:CGRect) -> CGPoint{
-        return CGPoint(x: rect.maxX/2, y: rect.maxY/2)
+        return CGPoint(x: rect.midX, y: rect.midY)
     }
 }
