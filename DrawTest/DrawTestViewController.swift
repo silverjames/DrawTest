@@ -10,11 +10,18 @@ import UIKit
 
 class DrawTestViewController: UIViewController {
 
+    @IBOutlet weak var drawView: DrawView!{
+        didSet {
+            let swipeGestureRecognizer = UISwipeGestureRecognizer(target: drawView, action: #selector(drawView.handleSwipe(recognizer:)))
+            drawView.addGestureRecognizer(swipeGestureRecognizer)
+            let pinchGestureRecognizer = UIPinchGestureRecognizer(target: drawView, action: #selector(drawView.handlePinch(recognizer:)))
+            drawView.addGestureRecognizer(pinchGestureRecognizer)
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
-
-
 }
+
 

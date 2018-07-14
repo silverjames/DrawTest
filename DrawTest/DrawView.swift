@@ -69,12 +69,51 @@ class DrawView: UIView {
     override func draw(_ rect: CGRect) {
         UIColor.green.setFill()
         UIColor.blue.setStroke()
+        var shapeFunction: (CGRect) -> UIBezierPath
+        shapeFunction = {
+            switch self.shape {
+            case 0:
+                return self.createCircle($0)
+            case 1:
+                return self.createDiamond($0)
+            case 2:
+                return self.createSquiggle($0)
+            default:
+                return self.createCircle($0)
+            }
+        }
         let cages = Grid.init(layout:.dimensions(rowCount: getDimensionsForCell(rect).rowCount, columnCount: getDimensionsForCell(rect).columnCount) , frame: rect)
         for idx in 0..<cages.cellCount{
-            let shape = createDiamond(cages[idx]!)
-            shape.stroke()
-            shape.fill()
+            let shapeToDraw = shapeFunction(cages[idx]!)
+            shapeToDraw.stroke()
+            shapeToDraw.fill()
         }
+        
+    }
+    
+    @objc func handleSwipe(recognizer:UISwipeGestureRecognizer){
+        switch recognizer.direction {
+        case .up, .down, .left, .right:
+            shape += 1
+            shape = shape > 3 ? 0 : shape
+        default:
+            shape = 0
+        }
+    }
+    
+    @objc func handlePinch(recognizer:UIPinchGestureRecognizer){
+       switch recognizer.state{
+       case .began:
+        recognizer.scale = 1
+       case .changed:
+//            print ("pinch: \(recognizer.scale)")
+            let scale = abs(Int(recognizer.scale * 2))
+            number = scale > 0 ? scale : 1
+//            recognizer.scale = 1
+        default:
+            break
+        }
+
         
     }
 
