@@ -13,7 +13,8 @@ class DrawView: UIView {
     
     @IBInspectable
     var number:Int = 3 { didSet {setNeedsLayout(); setNeedsDisplay()}}
-    var shape:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
+    @IBInspectable
+    var shape:Int = 2 { didSet {setNeedsLayout(); setNeedsDisplay()}}
     var shading:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
     var color:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
 
@@ -35,19 +36,25 @@ class DrawView: UIView {
         return diamond
     }
     
-    private func createSquiggle(_ rect: CGRect) -> UIBezierPath{
-        let squiggle:UIBezierPath = UIBezierPath()
-        print ("\(rect)")
-        
-        squiggle.move(to: getCenter(rect))
-        squiggle.lineJoinStyle = .round
-        squiggle.lineCapStyle = .round
-        squiggle.move(to: rect.origin)
-        squiggle.addQuadCurve(to: CGPoint(x: rect.midX * 0.5, y: rect.maxY * 0.25), controlPoint: CGPoint(x: rect.maxX * 0.4, y: rect.maxY * 0.01))
-        squiggle.addCurve(to: CGPoint(x: rect.midX * 0.5, y: rect.maxY * 0.85), controlPoint1: CGPoint(x: rect.maxX * 0.1, y: rect.maxY * 0.4), controlPoint2: CGPoint(x: rect.maxX * 0.25, y: rect.maxY * 0.5))
-        squiggle.addQuadCurve(to: CGPoint(x: rect.maxX * 0.75, y: rect.maxY * 0.85), controlPoint: CGPoint(x: rect.maxX * 0.6, y: rect.maxY * 0.99))
-        squiggle.addCurve(to: CGPoint(x: rect.maxX * 0.75, y: rect.maxY * 0.25), controlPoint1: CGPoint(x: rect.maxX * 0.9, y: rect.maxY * 0.5), controlPoint2: CGPoint(x: rect.maxX * 0.65, y: rect.maxY * 0.7))
-        return squiggle
+    private func createOval(_ rect: CGRect) -> UIBezierPath{
+        let oval = UIBezierPath()
+//        let shortAxis = (min(rect.width, rect.height) * 0.9)
+//        let longAxis = (max(rect.width, rect.height) * 0.9)
+        let p1 = CGPoint(x: rect.origin.x + 0.75 * rect.size.width, y: rect.origin.y + 2*cardInset(rect))
+        let p2 = CGPoint(x: p1.x, y: rect.origin.y + rect.height - 2*cardInset(rect))
+        let p3 = CGPoint(x: rect.origin.x + 0.25 * rect.size.width, y: p2.y)
+        let p4 = CGPoint(x: p3.x, y:p1.y)
+        let cp1 = CGPoint(x: rect.origin.x + rect.size.width - cardInset(rect)/2, y: rect.origin.y + rect.height/2)
+        let cp2 = CGPoint(x: rect.origin.x + rect.size.width/2, y: rect.origin.y + rect.size.height - cardInset(rect)/2)
+        let cp3 = CGPoint(x: rect.origin.x + cardInset(rect)/2, y: cp1.y)
+        let cp4 = CGPoint(x: cp2.x, y: rect.origin.y + cardInset(rect)/2)
+        oval.move(to: p1)
+        oval.addQuadCurve(to: p2, controlPoint: cp1)
+        oval.addQuadCurve(to: p3, controlPoint: cp2)
+        oval.addQuadCurve(to: p4, controlPoint: cp3)
+        oval.addQuadCurve(to: p1, controlPoint: cp4)
+        oval.lineJoinStyle = .round
+        return oval
     }
     
     private func createCircle(_ rect: CGRect) -> UIBezierPath{
@@ -77,7 +84,7 @@ class DrawView: UIView {
             case 1:
                 return self.createDiamond($0)
             case 2:
-                return self.createSquiggle($0)
+                return self.createOval($0)
             default:
                 return self.createCircle($0)
             }
@@ -104,7 +111,7 @@ class DrawView: UIView {
     @objc func handlePinch(recognizer:UIPinchGestureRecognizer){
        switch recognizer.state{
        case .began:
-        recognizer.scale = 1
+        recognizer.scale = CGFloat(number)
        case .changed:
 //            print ("pinch: \(recognizer.scale)")
             let scale = abs(Int(recognizer.scale * 2))
@@ -121,7 +128,7 @@ class DrawView: UIView {
 
 extension DrawView{
     private struct SetViewRatios {
-        static let frameInsetRatio: CGFloat = 0.1
+        static let frameInsetRatio: CGFloat = 0.08
         static let maxSymbolsPerCard = 3
     }
     
