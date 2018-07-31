@@ -15,6 +15,67 @@ class DrawView: UIView {
     var number:Int = 3 { didSet {setNeedsLayout(); setNeedsDisplay()}}
     @IBInspectable
     var shape:Int = 2 { didSet {setNeedsLayout(); setNeedsDisplay()}}
+    @IBInspectable
+    var p1_dx:CGFloat = 0
+    @IBInspectable
+    var p1_dy:CGFloat = 0
+    @IBInspectable
+    var p2_dx:CGFloat = 0
+    @IBInspectable
+    var p2_dy:CGFloat = 0
+    @IBInspectable
+    var p3_dx:CGFloat = 0
+    @IBInspectable
+    var p3_dy:CGFloat = 0
+    @IBInspectable
+    var p4_dx:CGFloat = 0
+    @IBInspectable
+    var p4_dy:CGFloat = 0
+    @IBInspectable
+    var p5_dx:CGFloat = 0
+    @IBInspectable
+    var p5_dy:CGFloat = 0
+    @IBInspectable
+    var p6_dx:CGFloat = 0
+    @IBInspectable
+    var p6_dy:CGFloat = 0
+    @IBInspectable
+    var c1_dx:CGFloat = 0
+    @IBInspectable
+    var c1_dy:CGFloat = 0
+    @IBInspectable
+    var c2_dx:CGFloat = 0
+    @IBInspectable
+    var c2_dy:CGFloat = 0
+    @IBInspectable
+    var c3_dx:CGFloat = 0
+    @IBInspectable
+    var c3_dy:CGFloat = 0
+    @IBInspectable
+    var c4_dx:CGFloat = 0
+    @IBInspectable
+    var c4_dy:CGFloat = 0
+    @IBInspectable
+    var c5_dx:CGFloat = 0
+    @IBInspectable
+    var c5_dy:CGFloat = 0
+    @IBInspectable
+    var c6_dx:CGFloat = 0
+    @IBInspectable
+    var c6_dy:CGFloat = 0
+    @IBInspectable
+    var c7_dx:CGFloat = 0
+    @IBInspectable
+    var c7_dy:CGFloat = 0
+    @IBInspectable
+    var c8_dx:CGFloat = 0
+    @IBInspectable
+    var c8_dy:CGFloat = 0
+    @IBInspectable
+    var c9_dx:CGFloat = 0
+    @IBInspectable
+    var c9_dy:CGFloat = 0
+
     var shading:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
     var color:Int = 0 { didSet {setNeedsLayout(); setNeedsDisplay()}}
 
@@ -64,7 +125,35 @@ class DrawView: UIView {
         circle.addArc(withCenter: center, radius: radius, startAngle: 0.0, endAngle: 2*CGFloat.pi, clockwise: false)
         return circle
     }
-    
+
+    private func createSquiggle(_ rect: CGRect) -> UIBezierPath{
+        let oval = UIBezierPath()
+        let p1 = CGPoint(x: rect.origin.x + p1_dx, y: rect.origin.y + p1_dy)
+        let p2 = CGPoint(x: rect.origin.x + p2_dx, y: rect.origin.y + p2_dy)
+        let p3 = CGPoint(x: rect.origin.x + p3_dx, y: rect.origin.y + p3_dy)
+        let p4 = CGPoint(x: rect.origin.x + p4_dx, y: rect.origin.y + p4_dy)
+        let p5 = CGPoint(x: rect.origin.x + p5_dx, y: rect.origin.y + p5_dy)
+        let p6 = CGPoint(x: rect.origin.x + p6_dx, y: rect.origin.y + p6_dy)
+        let cp1 = CGPoint(x: rect.origin.x + c1_dx, y: rect.origin.y + c1_dy)
+        let cp2 = CGPoint(x: rect.origin.x + c2_dx, y: rect.origin.y + c2_dy)
+        let cp3 = CGPoint(x: rect.origin.x + c3_dx, y: rect.origin.y + c3_dy)
+        let cp4 = CGPoint(x: rect.origin.x + c4_dx, y: rect.origin.y + c4_dy)
+        let cp5 = CGPoint(x: rect.origin.x + c5_dx, y: rect.origin.y + c5_dy)
+        let cp6 = CGPoint(x: rect.origin.x + c6_dx, y: rect.origin.y + c6_dy)
+        let cp7 = CGPoint(x: rect.origin.x + c7_dx, y: rect.origin.y + c7_dy)
+        let cp8 = CGPoint(x: rect.origin.x + c8_dx, y: rect.origin.y + c8_dy)
+        let cp9 = CGPoint(x: rect.origin.x + c9_dx, y: rect.origin.y + c9_dy)
+        oval.move(to: p1)
+        oval.addQuadCurve(to: p2, controlPoint: cp1)
+        oval.addQuadCurve(to: p3, controlPoint: cp2)
+        oval.addCurve(to: p4, controlPoint1: cp3, controlPoint2: cp4)
+        oval.addCurve(to: p5, controlPoint1: cp5, controlPoint2: cp6)
+        oval.addQuadCurve(to: p6, controlPoint: cp7)
+        oval.addCurve(to: p1, controlPoint1: cp8, controlPoint2: cp9)
+        oval.lineJoinStyle = .round
+        return oval
+    }
+
     private func getDimensionsForCell (_ rect: CGRect) -> (rowCount:Int, columnCount:Int){
         if rect.height/rect.width > 1.0{
             return(number, 1)
@@ -74,6 +163,7 @@ class DrawView: UIView {
     }
     
     override func draw(_ rect: CGRect) {
+        print ("\(self.bounds)")
         UIColor.green.setFill()
         UIColor.blue.setStroke()
         var shapeFunction: (CGRect) -> UIBezierPath
@@ -86,7 +176,7 @@ class DrawView: UIView {
             case 2:
                 return self.createOval($0)
             default:
-                return self.createCircle($0)
+                return self.createSquiggle($0)
             }
         }
         let cages = Grid.init(layout:.dimensions(rowCount: getDimensionsForCell(rect).rowCount, columnCount: getDimensionsForCell(rect).columnCount) , frame: rect)
